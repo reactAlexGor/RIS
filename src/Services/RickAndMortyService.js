@@ -6,7 +6,7 @@ const useRickAndMortyService = () => {
     const _apiBase = 'https://rickandmortyapi.com/api/';
 
     const getDataByOption = async (option) => {
-        const res = await request(`${_apiBase}${option}`);
+        const res = await request({ url: `${_apiBase}${option}` });
         return res.data.results;
     }
 
