@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import Select from 'react-select';
+
+import MultiSelect from '../multiselect/Multiselect';
 
 import './AppHeader.scss';
 
+
 const AppHeader = ({ types, setApiOption }) => {
     const [options, setOptions] = useState([]);
-
     useEffect(() => {
         prepareOptions(types);
     }, [types])
@@ -20,8 +21,8 @@ const AppHeader = ({ types, setApiOption }) => {
 
     return (
         <header className='header'>
-
             <nav className='header__nav'>
+                <MultiSelect options={options} />
                 {/* <div className="header__multiselector-wrapper">
                     <Select
                         isMulti

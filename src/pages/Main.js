@@ -19,7 +19,6 @@ const Main = () => {
     const [dataTable, setDataTable] = useState([]);
     const [columns, setColumns] = useState([]);
     const [apiOption, setApiOption] = useState('location');
-    const [types, setTypes] = useState([]);
 
     const { getDataByOption, loading } = useRickAndMortyService();
 
@@ -29,7 +28,6 @@ const Main = () => {
                 setDataTable(data)
                 setColumns(Object.keys(data[0]))
             })
-
     }, [apiOption])
 
     const getTypesfromArr = (arr) => {
@@ -38,10 +36,6 @@ const Main = () => {
         })
         return Array.from(new Set(arrTypes));
     }
-
-
-
-
 
     return (
         <>
