@@ -19,6 +19,7 @@ const Main = () => {
     const [dataTable, setDataTable] = useState([]);
     const [columns, setColumns] = useState([]);
     const [apiOption, setApiOption] = useState('location');
+    const [field, setField] = useState('type');
 
     const { getDataByOption, loading } = useRickAndMortyService();
 
@@ -28,11 +29,26 @@ const Main = () => {
                 setDataTable(data)
                 setColumns(Object.keys(data[0]))
             })
+
+        if (apiOption === 'location') {
+            setField('type');
+        } else if (apiOption === 'character') {
+            setField('species');
+        }
+
     }, [apiOption])
+
+    const filterData = (data, filter, field) => {
+
+        return data.filter((item) => {
+            console.log(item);
+            return filter.includes(item[field]);
+        });
+    }
 
     const getTypesfromArr = (arr) => {
         const arrTypes = arr.map((item) => {
-            return item.type;
+            return item[field];
         })
         return Array.from(new Set(arrTypes));
     }
@@ -43,7 +59,7 @@ const Main = () => {
             <Portal>
                 {loading && <Loader />}
             </Portal>
-            <Table dataTable={dataTable} columns={columns} />
+            <Table dataTable={filterData(dataTable, ['Alien'], field)} columns={columns} />
         </>
     )
 }

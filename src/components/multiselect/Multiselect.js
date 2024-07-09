@@ -6,15 +6,16 @@ const MultiSelect = ({ options }) => {
     const [query, setQuery] = useState('');
     const [listOptions, setListOptions] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState([]);
+    const [filtredOptions, setFiltredOptions] = useState([]);
 
     useEffect(() => {
-        setListOptions(options);
-        updateSearchResults(query);
+        updateListOptions(options);
+        // updateSearchResults(query);
     }, [query, options, selectedOptions, listOptions]);
 
     // Функция инициализации всех возможных значений опций
     const updateListOptions = (options) => {
-        setListOptions((options) => options);
+        setListOptions(options);
     }
 
     // Функция для добавления выбранной опции в список выбранных
@@ -37,7 +38,6 @@ const MultiSelect = ({ options }) => {
         if (!newQuery || !listOptions.length) return;
 
         const filteredOptions = listOptions.filter((option) => option.label.toLowerCase().includes(newQuery.toLowerCase()));
-        console.log(filteredOptions);
         setSelectedOptions(filteredOptions);
     };
 
@@ -49,12 +49,11 @@ const MultiSelect = ({ options }) => {
                 </div>
             </div>
             <ul>
-                <li>Selected item</li>
+                <p>into search</p>
                 {selectedOptions.map((option, index) => <li key={index} className='selected-list'>{option.label}</li>)}
             </ul>
             <div className="dropdown-wrapper" >
-                <li>Dropdown list item</li>
-                {listOptions.map((option, index) => <li key={option.label} className='dropdown' value={option.value} onClick={(e) => console.log(e.target.value)}>{option.label}</li>)}
+                {listOptions.map((option, index) => <li key={index} className='dropdown' data-value={option.value} onClick={(e) => addSelectedOption(e.target.dataset.value)}>{option.label}</li>)}
             </div>
         </>
 
@@ -62,3 +61,4 @@ const MultiSelect = ({ options }) => {
 }
 
 export default MultiSelect;
+
