@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
-import AppHeader from "../components/AppHeader/AppHeader";
-import Table from "../components/Table/Table";
+import AppHeader from "../components/appHeader/AppHeader";
+import Table from "../components/table/Table";
 import Loader from '../components/loader/Loader';
 
-import useRickAndMortyService from '../Services/RickAndMortyService';
+import useRickAndMortyService from '../services/RickAndMortyService';
 
 
 const Portal = (props) => {
@@ -19,8 +19,7 @@ const Main = () => {
     const [dataTable, setDataTable] = useState([]);
     const [columns, setColumns] = useState([]);
     const [apiOption, setApiOption] = useState('location');
-
-    console.log(typeof apiOption);
+    const [types, setTypes] = useState([]);
 
     const { getDataByOption, loading } = useRickAndMortyService();
 
@@ -33,9 +32,20 @@ const Main = () => {
 
     }, [apiOption])
 
+    const getTypesfromArr = (arr) => {
+        const arrTypes = arr.map((item) => {
+            return item.type;
+        })
+        return Array.from(new Set(arrTypes));
+    }
+
+
+
+
+
     return (
         <>
-            <AppHeader setApiOption={setApiOption} />
+            <AppHeader setApiOption={setApiOption} types={getTypesfromArr(dataTable)} />
             <Portal>
                 {loading && <Loader />}
             </Portal>
