@@ -1,37 +1,18 @@
-import { useState, useEffect } from 'react';
-
 import MultiSelect from '../multiselect/Multiselect';
 
 import './AppHeader.scss';
 
 
-const AppHeader = ({ types, setApiOption }) => {
-    const [options, setOptions] = useState([]);
-    useEffect(() => {
-        prepareOptions(types);
-    }, [types])
-
-    const prepareOptions = (types) => {
-        const arr = [];
-        types.map(item => {
-            arr.push({ value: item, label: item })
-        })
-        setOptions(arr);
-    }
-
+const AppHeader = ({ allOptionsFromDataTable, setApiOption, addSelectedOption, selectedOptions, setCurrentPage }) => {
     return (
         <header className='header'>
             <nav className='header__nav'>
-                <MultiSelect options={options} />
-                {/* <div className="header__multiselector-wrapper">
-                    <Select
-                        isMulti
-                        name="colors"
-                        options={options}
-                        className="basic-multi-select"
-                        classNamePrefix="select"
-                    />
-                </div> */}
+                <MultiSelect
+                    allOptionsFromDataTable={allOptionsFromDataTable}
+                    addSelectedOption={addSelectedOption}
+                    selectedOptions={selectedOptions}
+                    setCurrentPage={setCurrentPage}
+                />
                 <div className="header__selector-wrapper">
                     <p>Выберите API:</p>
                     <select onChange={(e) => setApiOption(e.target.value)}>

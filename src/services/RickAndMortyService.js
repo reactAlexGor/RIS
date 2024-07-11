@@ -1,7 +1,7 @@
 import { useHttp } from '../hooks/http.hook'
 
 const useRickAndMortyService = () => {
-    const { request, loading, setLoading } = useHttp();
+    const { request, loading } = useHttp();
 
     const _apiBase = 'https://rickandmortyapi.com/api/';
 
@@ -12,8 +12,7 @@ const useRickAndMortyService = () => {
 
     return {
         getDataByOption,
-        loading,
-        setLoading
+        loading
     }
 }
 

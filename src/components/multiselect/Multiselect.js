@@ -1,62 +1,95 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import './Multiselect.scss';
 
-const MultiSelect = ({ options }) => {
-    const [query, setQuery] = useState('');
+const MultiSelect = ({ allOptionsFromDataTable, addSelectedOption, selectedOptions, setCurrentPage }) => {
+    const [searchQuery, setSearchQuery] = useState('');
     const [listOptions, setListOptions] = useState([]);
-    const [selectedOptions, setSelectedOptions] = useState([]);
     const [filtredOptions, setFiltredOptions] = useState([]);
 
-    useEffect(() => {
-        updateListOptions(options);
-        // updateSearchResults(query);
-    }, [query, options, selectedOptions, listOptions]);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    // Функция инициализации всех возможных значений опций
+    const wrapRef = useRef();
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClick);
+        updateListOptions(allOptionsFromDataTable);
+        updateSearchResults(searchQuery);
+        // updateFiltredOptions();
+    }, [searchQuery, allOptionsFromDataTable, selectedOptions, listOptions, dropdownOpen]);
+
+    const handleClick = (e) => {
+        if (wrapRef.current && !wrapRef.current.contains(e.target)) {
+            setDropdownOpen(false);
+        }
+    }
+
     const updateListOptions = (options) => {
         setListOptions(options);
     }
 
-    // Функция для добавления выбранной опции в список выбранных
-    const addSelectedOption = (option) => {
-        console.log(option);
-        setSelectedOptions([...selectedOptions, option]);
-    };
-
-    // // Функция для удаления выбранной опции из списка выбранных
-    // const removeOptionFromSelected = (optionElement) => {
-    //     const index = selectedOptions.indexOf(optionElement);
-    //     if (index !== -1) {
-    //         setSelectedOptions(selectedOptions.slice(0, index).concat(selectedOptions.slice(index + 1)));
-    //     }
-    // };
-
-    // Функция для обновления списка результатов поиска
     const updateSearchResults = (newQuery) => {
-        setQuery(newQuery);
+        setSearchQuery(newQuery);
         if (!newQuery || !listOptions.length) return;
 
         const filteredOptions = listOptions.filter((option) => option.label.toLowerCase().includes(newQuery.toLowerCase()));
-        setSelectedOptions(filteredOptions);
+        setFiltredOptions(filteredOptions);
     };
+
+    const updateFiltredOptions = () => {
+        const arrListOptions = Array.from(new Set(listOptions.map(item => Object.values(item)).flat()));
+        const arrSelectOption = Array.from(new Set(selectedOptions.map(item => Object.values(item)).flat()));
+
+        const toPrepareOptions = (allOptionsfromDataTable) => {
+            const arrPrepareOptions = [];
+            allOptionsfromDataTable.map(option => {
+                arrPrepareOptions.push({ value: option, label: option })
+            })
+            return arrPrepareOptions;
+        }
+        setFiltredOptions(toPrepareOptions(arrListOptions.filter(value => !arrSelectOption.includes(value))));
+    }
+
+    const onClickDropdownOption = (e) => {
+        setCurrentPage(0);
+        addSelectedOption(e.target.dataset.value);
+        updateFiltredOptions();
+    }
+
 
     return (
         <>
-            <div className="container">
-                <div className="search-bar">
-                    <input placeholder='Поиск по типу' type="text" value={query} onChange={(e) => updateSearchResults(e.target.value)} />
+            {/* <button onClick={() => updateFiltredOptions()}>322</button> */}
+            <div className="ms" ref={wrapRef} >
+                <ul className="ms__chose">
+                    {selectedOptions.map((option, index) => <li key={index} className='ms__chose-item'>{option.label}</li>)}
+                    <li>
+                        <input
+                            className="ms__input"
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => updateSearchResults(e.target.value)}
+                            onFocus={() => setDropdownOpen(true)}
+                        // onBlur={(e) => setDropdownOpen(false)}
+                        />
+                    </li>
+                </ul>
+                <div className={`ms__dropdown ${dropdownOpen || searchQuery ? "" : "ms__dropdown_hidden"}`}  >
+                    {(filtredOptions.length === 0 ? listOptions : filtredOptions)
+                        .map((option, index) => (
+                            <div
+                                key={index}
+                                className='ms__dropdown-item ms__dropdown-item_visible'
+                                data-value={option.value}
+                                // onClick={(e) => onClickDropDown(e)}
+                                onClick={(e) => onClickDropdownOption(e)}
+                            >
+                                {option.label}
+                            </div>
+                        ))}
                 </div>
             </div>
-            <ul>
-                <p>into search</p>
-                {selectedOptions.map((option, index) => <li key={index} className='selected-list'>{option.label}</li>)}
-            </ul>
-            <div className="dropdown-wrapper" >
-                {listOptions.map((option, index) => <li key={index} className='dropdown' data-value={option.value} onClick={(e) => addSelectedOption(e.target.dataset.value)}>{option.label}</li>)}
-            </div>
         </>
-
     )
 }
 

@@ -1,33 +1,28 @@
 import { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
 
 import AppHeader from "../components/appHeader/AppHeader";
 import Table from "../components/table/Table";
 import Loader from '../components/loader/Loader';
-
 import useRickAndMortyService from '../services/RickAndMortyService';
-
-
-const Portal = (props) => {
-    const node = document.createElement('div');
-    document.body.appendChild(node);
-
-    return ReactDOM.createPortal(props.children, node);
-}
+import Footer from '../components/footer/Footer';
 
 const Main = () => {
     const [dataTable, setDataTable] = useState([]);
     const [columns, setColumns] = useState([]);
     const [apiOption, setApiOption] = useState('location');
     const [field, setField] = useState('type');
+    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
 
     const { getDataByOption, loading } = useRickAndMortyService();
 
     useEffect(() => {
         getDataByOption(apiOption)
-            .then(data => {
-                setDataTable(data)
-                setColumns(Object.keys(data[0]))
+            .then(initialData => {
+                const filteredInitialData = initialData.map(item => Object.fromEntries(Object.entries(item).filter(([_, val]) => typeof val !== 'object')));
+                setDataTable(filteredInitialData);
+                setColumns(Object.keys(filteredInitialData[0]));
             })
 
         if (apiOption === 'location') {
@@ -36,30 +31,67 @@ const Main = () => {
             setField('species');
         }
 
-    }, [apiOption])
+    }, [apiOption, selectedOptions])
 
-    const filterData = (data, filter, field) => {
+    const addSelectedOption = (option) => {
+        console.log(option);
+        setSelectedOptions([...selectedOptions, { value: option, label: option }]);
+    };
 
-        return data.filter((item) => {
-            console.log(item);
-            return filter.includes(item[field]);
+    const filterDataByOptions = (data, options, field) => {
+        const arrOptions = options.map(item => Object.values(item)).flat();
+        const arrUniqOptions = Array.from(new Set(arrOptions));
+
+        if (arrUniqOptions.length === 0) {
+            return data;
+        }
+
+        return data.filter((obj) => {
+            return arrUniqOptions.includes(obj[field]);
         });
     }
 
-    const getTypesfromArr = (arr) => {
-        const arrTypes = arr.map((item) => {
+    const getAllOptionsfromDataTable = (dataTable) => {
+        let allOptionsfromDataTable = dataTable.map((item) => {
             return item[field];
         })
-        return Array.from(new Set(arrTypes));
+        allOptionsfromDataTable = Array.from(new Set(allOptionsfromDataTable));
+
+        return toPrepareOptions(allOptionsfromDataTable);
+    }
+
+    const toPrepareOptions = (allOptionsfromDataTable) => {
+        const arrPrepareOptions = [];
+        allOptionsfromDataTable.map(option => {
+            arrPrepareOptions.push({ value: option, label: option })
+        })
+        return arrPrepareOptions;
     }
 
     return (
         <>
-            <AppHeader setApiOption={setApiOption} types={getTypesfromArr(dataTable)} />
-            <Portal>
-                {loading && <Loader />}
-            </Portal>
-            <Table dataTable={filterData(dataTable, ['Alien'], field)} columns={columns} />
+            {loading && <Loader />}
+            <AppHeader
+                setApiOption={setApiOption}
+                allOptionsFromDataTable={getAllOptionsfromDataTable(dataTable)}
+                addSelectedOption={addSelectedOption}
+                selectedOptions={selectedOptions}
+                setCurrentPage={setCurrentPage}
+            />
+            <Footer
+                dataTableLength={filterDataByOptions(dataTable, selectedOptions, field).length}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                pageSize={pageSize}
+                setPageSize={setPageSize}
+            />
+            <Table
+                dataTable={filterDataByOptions(dataTable, selectedOptions, field)}
+                columns={columns}
+                currentPage={currentPage}
+                pageSize={pageSize}
+            />
+
         </>
     )
 }

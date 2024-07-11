@@ -1,0 +1,77 @@
+.footer {
+    margin: 0 auto;
+    width: 1200px;
+    height: 64px;
+    background-color: rgba(244, 247, 252, 0.75);
+    backdrop-filter: blur(5px);
+    &__nav {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        padding: 16px 20px;
+        align-items: center;
+    }
+
+    select {
+        appearance: none;
+        padding: 10px 5px;
+        width: 35px;
+        font-weight: 600;
+        font-size: 12px;
+        background: #f4f7fc;
+        color: #687182;
+        border: none;
+        outline: none;
+        background-image: url(../../resources/icon-hat.svg);
+        background-repeat: no-repeat;
+        background-position: 25px 14px;
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    .selected {
+        display: none;
+    }
+
+    &__selector-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 20px;
+        p {
+            font-weight: 600;
+            font-size: 12px;
+            color: #687182;
+        }
+    }
+    &__navigation {
+        display: flex;
+        width: 90px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__navigation-counters {
+        font-size: 12px;
+        span:first-child {
+            font-weight: 700;
+        }
+    }
+
+    &__nav-button {
+        color: #464f60;
+        height: 20px;
+        font-weight: 500;
+        line-height: 3px;
+        width: 24px;
+        background-color: #fff;
+        border: 1px solid #bebebe;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    .disabled {
+        cursor: default;
+        opacity: 0.5;
+    }
+}

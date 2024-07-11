@@ -5,9 +5,9 @@ export const useHttp = () => {
     const [loading, setLoading] = useState(false);
 
     const request = async ({
-        url, 
-        method = 'GET', 
-        body = null, 
+        url,
+        method = 'GET',
+        body = null,
         headers = { 'Content-Type': 'application/json' }
     }) => {
         setLoading(true);
@@ -25,7 +25,7 @@ export const useHttp = () => {
             });
     }
 
-    return { request, loading, setLoading };
+    return { request, loading };
 }
 
 
