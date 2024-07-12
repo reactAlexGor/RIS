@@ -23,7 +23,7 @@ export const useHttp = () => {
             .finally(function () {
                 setLoading(false);
             });
-    }
+    };
 
     return { request, loading };
 }

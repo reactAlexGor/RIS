@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import AppHeader from "../components/appHeader/AppHeader";
 import Table from "../components/table/Table";
@@ -7,6 +7,7 @@ import useRickAndMortyService from '../services/RickAndMortyService';
 import Footer from '../components/footer/Footer';
 
 const Main = () => {
+    const [defaultDataTable, setDefaultDataTable] = useState([]);
     const [dataTable, setDataTable] = useState([]);
     const [columns, setColumns] = useState([]);
     const [apiOption, setApiOption] = useState('location');
@@ -20,7 +21,10 @@ const Main = () => {
     useEffect(() => {
         getDataByOption(apiOption)
             .then(initialData => {
-                const filteredInitialData = initialData.map(item => Object.fromEntries(Object.entries(item).filter(([_, val]) => typeof val !== 'object')));
+                const filteredInitialData = initialData
+                    .map(item => Object.fromEntries(Object.entries(item)
+                        .filter(([_, val]) => typeof val !== 'object')));
+                setDefaultDataTable(filteredInitialData);
                 setDataTable(filteredInitialData);
                 setColumns(Object.keys(filteredInitialData[0]));
             })
@@ -31,69 +35,65 @@ const Main = () => {
             setField('species');
         }
 
-    }, [apiOption, selectedOptions])
+    }, [apiOption])
 
     const addSelectedOption = (option) => {
-        console.log(option);
-        setSelectedOptions([...selectedOptions, { value: option, label: option }]);
+        const newSelectedOptions = [...selectedOptions, { value: option, label: option }]
+        setSelectedOptions(newSelectedOptions);
+        filterDataByOptions(newSelectedOptions, field)
     };
 
-    const filterDataByOptions = (data, options, field) => {
-        const arrOptions = options.map(item => Object.values(item)).flat();
-        const arrUniqOptions = Array.from(new Set(arrOptions));
+    const deleteSelectedOption = (option) => {
+        const newSelectedOptions = selectedOptions.filter(obj => obj.value !== option.value);
+        setSelectedOptions(newSelectedOptions);
+        filterDataByOptions(newSelectedOptions, field);
+    };
 
-        if (arrUniqOptions.length === 0) {
-            return data;
-        }
-
-        return data.filter((obj) => {
-            return arrUniqOptions.includes(obj[field]);
-        });
+    const filterDataByOptions = (options, field) => {
+        setDataTable(defaultDataTable.filter((obj) => {
+            return options.map(item => item.value).includes(obj[field]);
+        }));
     }
 
-    const getAllOptionsfromDataTable = (dataTable) => {
-        let allOptionsfromDataTable = dataTable.map((item) => {
-            return item[field];
-        })
-        allOptionsfromDataTable = Array.from(new Set(allOptionsfromDataTable));
+    const sortByField = (data, field, direction) => {
+        const sign = direction ? 1 : -1;
+        data.sort((a, b) => a[field] > b[field] ? 1 * sign : -1 * sign);
+        setDataTable([...data]);
+    };
 
-        return toPrepareOptions(allOptionsfromDataTable);
-    }
-
-    const toPrepareOptions = (allOptionsfromDataTable) => {
-        const arrPrepareOptions = [];
-        allOptionsfromDataTable.map(option => {
-            arrPrepareOptions.push({ value: option, label: option })
-        })
-        return arrPrepareOptions;
-    }
+    const allOptionsFromDataTable = useMemo(() => {
+        const options = Array.from(new Set(dataTable.map(item => item[field])));
+        return options.map(option => ({ value: option, label: option }));
+    }, [defaultDataTable]);
 
     return (
         <>
             {loading && <Loader />}
             <AppHeader
                 setApiOption={setApiOption}
-                allOptionsFromDataTable={getAllOptionsfromDataTable(dataTable)}
+                allOptionsFromDataTable={allOptionsFromDataTable}
                 addSelectedOption={addSelectedOption}
+                deleteSelectedOption={deleteSelectedOption}
                 selectedOptions={selectedOptions}
+                setSelectedOptions={setSelectedOptions}
                 setCurrentPage={setCurrentPage}
             />
+            <Table
+                dataTable={dataTable}
+                sortByField={sortByField}
+                columns={columns}
+                currentPage={currentPage}
+                pageSize={pageSize}
+            />
             <Footer
-                dataTableLength={filterDataByOptions(dataTable, selectedOptions, field).length}
+                dataTableLength={dataTable.length}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
                 pageSize={pageSize}
                 setPageSize={setPageSize}
             />
-            <Table
-                dataTable={filterDataByOptions(dataTable, selectedOptions, field)}
-                columns={columns}
-                currentPage={currentPage}
-                pageSize={pageSize}
-            />
-
         </>
     )
-}
+};
 
 export default Main;

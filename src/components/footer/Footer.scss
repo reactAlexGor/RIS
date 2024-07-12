@@ -11,7 +11,6 @@
         padding: 16px 20px;
         align-items: center;
     }
-
     select {
         appearance: none;
         padding: 10px 5px;
@@ -29,11 +28,9 @@
             cursor: pointer;
         }
     }
-
     .selected {
         display: none;
     }
-
     &__selector-wrapper {
         display: flex;
         justify-content: center;
@@ -58,7 +55,6 @@
             font-weight: 700;
         }
     }
-
     &__nav-button {
         color: #464f60;
         height: 20px;

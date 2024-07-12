@@ -1,97 +1,75 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 import './Multiselect.scss';
 
-const MultiSelect = ({ allOptionsFromDataTable, addSelectedOption, selectedOptions, setCurrentPage }) => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [listOptions, setListOptions] = useState([]);
-    const [filtredOptions, setFiltredOptions] = useState([]);
-
+const MultiSelect = ({ allOptionsFromDataTable, addSelectedOption, deleteSelectedOption, selectedOptions, setCurrentPage, search, setSearch }) => {
+    const [filteredOptions, setFilteredOptions] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    const wrapRef = useRef();
+    const updateFilteredOptions = () => {
+        const arrSelectOptions = selectedOptions.map(item => item.value);
+
+        setFilteredOptions(allOptionsFromDataTable
+            .filter(item => !arrSelectOptions.includes(item.value)));
+    }
 
     useEffect(() => {
-        document.addEventListener("mousedown", handleClick);
-        updateListOptions(allOptionsFromDataTable);
-        updateSearchResults(searchQuery);
-        // updateFiltredOptions();
-    }, [searchQuery, allOptionsFromDataTable, selectedOptions, listOptions, dropdownOpen]);
+        updateFilteredOptions();
+    }, [allOptionsFromDataTable, selectedOptions]);
 
-    const handleClick = (e) => {
-        if (wrapRef.current && !wrapRef.current.contains(e.target)) {
-            setDropdownOpen(false);
-        }
-    }
-
-    const updateListOptions = (options) => {
-        setListOptions(options);
-    }
-
-    const updateSearchResults = (newQuery) => {
-        setSearchQuery(newQuery);
-        if (!newQuery || !listOptions.length) return;
-
-        const filteredOptions = listOptions.filter((option) => option.label.toLowerCase().includes(newQuery.toLowerCase()));
-        setFiltredOptions(filteredOptions);
+    const onClickDropdownOption = (e, value) => {
+        e.preventDefault();
+        setCurrentPage(0);
+        addSelectedOption(value);
+        setSearch('');
     };
 
-    const updateFiltredOptions = () => {
-        const arrListOptions = Array.from(new Set(listOptions.map(item => Object.values(item)).flat()));
-        const arrSelectOption = Array.from(new Set(selectedOptions.map(item => Object.values(item)).flat()));
-
-        const toPrepareOptions = (allOptionsfromDataTable) => {
-            const arrPrepareOptions = [];
-            allOptionsfromDataTable.map(option => {
-                arrPrepareOptions.push({ value: option, label: option })
-            })
-            return arrPrepareOptions;
-        }
-        setFiltredOptions(toPrepareOptions(arrListOptions.filter(value => !arrSelectOption.includes(value))));
-    }
-
-    const onClickDropdownOption = (e) => {
+    const onDeleteOption = (e, option) => {
+        e.preventDefault();
         setCurrentPage(0);
-        addSelectedOption(e.target.dataset.value);
-        updateFiltredOptions();
-    }
-
+        deleteSelectedOption(option);
+    };
 
     return (
-        <>
-            {/* <button onClick={() => updateFiltredOptions()}>322</button> */}
-            <div className="ms" ref={wrapRef} >
-                <ul className="ms__chose">
-                    {selectedOptions.map((option, index) => <li key={index} className='ms__chose-item'>{option.label}</li>)}
-                    <li>
-                        <input
-                            className="ms__input"
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => updateSearchResults(e.target.value)}
-                            onFocus={() => setDropdownOpen(true)}
-                        // onBlur={(e) => setDropdownOpen(false)}
-                        />
+        <div className="ms">
+            <ul className="ms__chose">
+                {selectedOptions.map((option, index) => (
+                    <li key={index} className='ms__chose-item'>
+                        {option.label}{' '}
+                        <span onMouseDown={(e) => onDeleteOption(e, option)}>X</span>
                     </li>
-                </ul>
-                <div className={`ms__dropdown ${dropdownOpen || searchQuery ? "" : "ms__dropdown_hidden"}`}  >
-                    {(filtredOptions.length === 0 ? listOptions : filtredOptions)
-                        .map((option, index) => (
-                            <div
-                                key={index}
-                                className='ms__dropdown-item ms__dropdown-item_visible'
-                                data-value={option.value}
-                                // onClick={(e) => onClickDropDown(e)}
-                                onClick={(e) => onClickDropdownOption(e)}
-                            >
-                                {option.label}
-                            </div>
-                        ))}
-                </div>
-            </div>
-        </>
+                ))}
+                <li className='ms__li-container' >
+                    <input
+                        className="ms__input"
+                        type="text"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        onFocus={() => setDropdownOpen(true)}
+                        onBlur={() => setDropdownOpen(false)}
+                    />
+                </li>
+            </ul>
+            {
+                (dropdownOpen || search) && (
+                    <div className="ms__dropdown">
+                        {filteredOptions
+                            .filter(option => option.label.toLowerCase().includes(search.toLowerCase()))
+                            .map((option, index) => (
+                                <div
+                                    key={index}
+                                    className='ms__dropdown-item'
+                                    onMouseDown={(e) => onClickDropdownOption(e, option.value)}
+                                >
+                                    {option.label}
+                                </div>
+                            ))}
+                    </div>
+                )
+            }
+        </div >
     )
-}
+};
 
 export default MultiSelect;
 

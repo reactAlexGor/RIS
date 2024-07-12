@@ -7,7 +7,7 @@ const Footer = ({ dataTableLength, currentPage, setCurrentPage, pageSize, setPag
 
     useEffect(() => {
         setMaxPageCount(() => Math.ceil(dataTableLength / pageSize));
-    }, [dataTableLength, pageSize])
+    }, [dataTableLength, pageSize]);
 
     const handleChangePageSize = (newPageSize) => {
         setCurrentPage(0);
@@ -18,14 +18,14 @@ const Footer = ({ dataTableLength, currentPage, setCurrentPage, pageSize, setPag
     const handlePrevious = () => {
         if (currentPage + 1 > 1) {
             setCurrentPage(currentPage - 1);
-        }
+        };
     };
 
     const handleNext = () => {
         const nextPage = currentPage + 1;
         if (nextPage < maxPageCount) {
             setCurrentPage(nextPage);
-        }
+        };
     };
 
     return (
@@ -45,7 +45,7 @@ const Footer = ({ dataTableLength, currentPage, setCurrentPage, pageSize, setPag
                     <button className={`footer__nav-button ${currentPage + 1 === maxPageCount ? 'disabled' : ''}`} onClick={handleNext}>&#8250;</button>
                 </div>
             </nav>
-        </footer >
+        </footer>
     )
 }
 

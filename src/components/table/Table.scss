@@ -1,7 +1,3 @@
-* {
-    box-sizing: border-box;
-}
-
 .flex-container {
     width: 1200px;
     margin: 0 auto;
@@ -53,7 +49,7 @@
     overflow: hidden;
     &:first-child {
         width: 300px;
-        margin-left: 8px;
+        margin: 0 8px;
     }
 
     &:last-child {
@@ -61,6 +57,16 @@
     }
     &-img {
         position: relative;
+    }
+    &__head {
+        margin-right: 8px;
+    }
+    &__wrapper-signs {
+        display: flex;
+        user-select: none;
+    }
+    &__signs {
+        cursor: pointer;
     }
 }
 

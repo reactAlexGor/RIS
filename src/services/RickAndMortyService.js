@@ -8,12 +8,12 @@ const useRickAndMortyService = () => {
     const getDataByOption = async (option) => {
         const res = await request({ url: `${_apiBase}${option}` });
         return res.data.results;
-    }
+    };
 
     return {
         getDataByOption,
         loading
-    }
-}
+    };
+};
 
 export default useRickAndMortyService;
